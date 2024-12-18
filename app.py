@@ -8,10 +8,10 @@ import requests
 
 app = Flask(__name__)
 
-app.secret_key = 'd@3r!v&j2f8#h1s8^p9wz6pQ3d7U0tX'
+app.secret_key = 'Replace with your actual secret key'
 
 # Set your TextRazor API key
-API_KEY = 'c6169bac8c680f971cdafd7794d0449b65aa50ed914abba0c4055af9'  # Replace with your actual API key
+API_KEY = 'Replace with your actual API key'  # Replace with your actual API key
 
 # Ensure you have the necessary resources for sentence tokenization
 nltk.download('punkt')
