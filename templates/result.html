@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Evaluation Result</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* General Styling */
+        body {
+            background-color: #e5e6e6;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+        }
+        h2 {
+            color: #00517d;
+        }
+
+        /* Table Styling */
+        table {
+            background-color: white;
+        }
+
+        th, td {
+            padding: 10px;
+        }
+
+        th {
+            background-color: #0065a7;
+            color: white;
+        }
+
+        /* Section Heading */
+        h4 {
+            background-color: #a0c0e5;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        /* Go Back Button */
+        .btn-info {
+            background-color: #00aea9;
+            color: white;
+            border: none;
+        }
+
+        .btn-info:hover {
+            background-color: #0065a7;
+        }
+
+        /* Legend Styling */
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4" style="background-color: #FFFFFF; border-radius: 10px;">
+        </br>
+        <a href="/" class="btn btn-info">Go Back</a>
+
+        <h2 class="text-center">CV Evaluation Results</h2>
+
+        <center>
+            <h4>Personal Information</h4>
+        </center>
+        <table class="table table-bordered">
+            <tbody>
+                <tr><th>Name</th><td>{{ cv_data.name }}</td></tr>
+                <tr><th>Email</th><td>{{ cv_data.email }}</td></tr>
+                <tr><th>Phone</th><td>{{ cv_data.phone }}</td></tr>
+            </tbody>
+        </table>
+
+        <center>
+            <h4>Skills</h4>
+        </center>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Skill</th>
+                    <th>Has Skill</th>
+                    <th>Experience (Years)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for skill in cv_data.skills %}
+                    <tr>
+                        <td>{{ skill.skill }}</td>
+                        <td>{{ "Yes" if skill.hasSkill else "No" }}</td>
+                        <td>{{ skill.experience }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <center>
+            <h4>Matched Qualifications</h4>
+        </center>
+        <table class="table table-bordered">
+            <tbody>
+                {% for qual in cv_data.matchedQualifications %}
+                    <tr><td>{{ qual }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <center>
+            <h4>Certifications</h4>
+        </center>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Matched Certifications</th>
+                    <th>Additional Certifications</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        {% for cert in cv_data.matchedCertifications %}
+                            <li>{{ cert }}</li>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for cert in cv_data.additionalCertifications %}
+                            <li>{{ cert }}</li>
+                        {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

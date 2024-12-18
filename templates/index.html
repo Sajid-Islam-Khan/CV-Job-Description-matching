@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Evaluation</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* General Styling */
+        body {
+            background-color: #e5e6e6;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        h2 {
+            color: #00517d;
+        }
+
+        /* Form Button */
+        button {
+            background-color: #00aea9;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0065a7;
+        }
+
+        /* Spinner */
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            text-align: center;
+        }
+        .spinner-border {
+            color: #00aea9;
+        }
+
+        /* Progress Bar Colors */
+        .progress-bar {
+            color: white;
+        }
+
+        /* Color Legend */
+        .color-legend {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background-color: #e5e6e6;
+            border-radius: 5px;
+        }
+        .color-box {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 5px;
+            border: 1px solid #000;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Layout for each CV result */
+        .cv-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .cv-name {
+            flex: 1;
+            text-align: left;
+        }
+        .progress-wrapper {
+            width: 50%; /* Adjust the width of the progress bar container */
+            margin-left: 20px;
+        }
+        .view-more-button {
+            margin-left: 20px;
+        }
+
+        /* Align the progress bar with the right side */
+        .progress-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .btn-info {
+            background-color: #00aea9;
+            color: white;
+            border: none;
+        }
+
+        .btn-info:hover {
+            background-color: #0065a7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="text-center">Job Description and CV Matching</h2>
+
+        <!-- Form for Job Description and CV Upload -->
+        <form action="/" method="POST" enctype="multipart/form-data" onsubmit="return validateFiles();">
+            <div class="form-group">
+                <textarea id="job_description" name="job_description" class="form-control" rows="5" required placeholder="Provide job description..." style="border: 2px solid #a0c0e5;"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="cv_files">Upload CVs</label>
+                <input type="file" id="cv_files" name="cv_files" class="form-control-file" accept=".pdf, .docx" multiple required>
+            </div>
+            <button type="submit" class="btn btn-info">Upload and Match</button>
+        </form>
+
+        <!-- Color Legend -->
+        <div class="color-legend">
+            <div class="legend-item"><div class="color-box" style="background-color: #a0c0e5;"></div>0-20%</div>
+            <div class="legend-item"><div class="color-box" style="background-color: #00aea9;"></div>21-40%</div>
+            <div class="legend-item"><div class="color-box" style="background-color: #6a8bb7;"></div>41-60%</div>
+            <div class="legend-item"><div class="color-box" style="background-color: #0065a7;"></div>61-80%</div>
+            <div class="legend-item"><div class="color-box" style="background-color: #00517d;"></div>81-100%</div>
+        </div>
+    </br>
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Matching in progress...</span>
+            </div>
+            <p class="text-center mt-2">Matching in progress. Please wait...</p>
+        </div>
+
+        <!-- Display Matching Results -->
+        {% if cv_results %}
+        <center>
+            <h3 class="mt-4">CV Matching Results</h3>
+        </center>
+        <ul class="list-group mt-3">
+            {% for cv in cv_results %}
+                <li class="list-group-item">
+                    <div class="cv-item">
+                        <div class="cv-name">
+                            <strong>Name:</strong> {{ cv.name }} <br>
+                            <strong>Score (%):</strong> {{ cv.score }}
+                        </div>
+                        <div class="progress-wrapper">
+                            <div class="progress">
+                                <div 
+                                    class="progress-bar" 
+                                    role="progressbar" 
+                                    style="width: {{ cv.score }}%;" 
+                                    aria-valuenow="{{ cv.score }}" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100">
+                                    {{ cv.score }}%
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('view_cv', cv_index=loop.index0) }}" class="btn btn-info view-more-button">View More</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <script>
+        // Function to apply appropriate color based on score
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            
+            progressBars.forEach(function(bar) {
+                const score = parseInt(bar.getAttribute('aria-valuenow'));
+                let color = '';
+                
+                if (score <= 20) color = '#a0c0e5';  
+                else if (score <= 40) color = '#00aea9';  
+                else if (score <= 60) color = '#6a8bb7';  
+                else if (score <= 80) color = '#0065a7';  
+                else if (score <= 100) color = '#00517d'; 
+
+                bar.style.backgroundColor = color;
+            });
+        });
+
+        // Show the loading spinner when form is submitted
+        function showLoadingSpinner() {
+            document.getElementById("loadingSpinner").style.display = "block";
+        }
+
+        // Validate files before submitting
+        function validateFiles() {
+            const fileInput = document.getElementById("cv_files");
+            const allowedExtensions = /(\.pdf|\.docx)$/i;
+            for (const file of fileInput.files) {
+                if (!allowedExtensions.test(file.name)) {
+                    alert("Only PDF and DOCX files are allowed.");
+                    return false;
+                }
+            }
+            showLoadingSpinner();
+            return true;
+        }
+    </script>
+</body>
+</html>
